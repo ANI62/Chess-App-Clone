@@ -3,15 +3,24 @@ const socket=require('socket.io')
 const http=require('http');
 const {Chess}=require('chess.js');
 const app=express();
+const path=require('path');
 const server=http.createServer(app);
 const io=socket(server);
 const chess=new Chess();
 let players={};
 let currentPlayer="W";
 
-app.set("veiw engine","ejs");
+app.set('view engine','ejs');
 app.use(express.static(path.join(__dirname,"public")));
 
 app.get("/",(req,res)=>{
-  app.render("index");
+  res.render("index",{title:"Chess Game"});
+})
+
+io.on("connection",function(uniquesocket){
+    console.log("Connected")
+})
+
+server.listen(3000,(err)=>{
+  console.log("Chal nahi raha hai bhai ....dekh le ab tu")
 })
