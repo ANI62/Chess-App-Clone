@@ -10,7 +10,7 @@ const chess = new Chess();
 let players = {};
 let currentPlayer = "w";
 
-app.set("view engine", "ejs"); // set ejs view engine
+app.set("view engine", "ejs"); // Set ejs view engine
 app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/", (req, res) => {
@@ -19,10 +19,10 @@ app.get("/", (req, res) => {
 
 // This will decide who will connect to the server through the socket
 io.on("connection", function (uniquesocket) {
-  // connect backend to the server
-  console.log("Connected");
+  // Connect backend to the server
+  console.log("Connected:", uniquesocket.id);
 
-  // Here we add the new white and black players
+  // Add the new white and black players
   if (!players.white) {
     players.white = uniquesocket.id; // Connects white player
     uniquesocket.emit("playerRole", "w");
@@ -30,7 +30,7 @@ io.on("connection", function (uniquesocket) {
     players.black = uniquesocket.id; // Connects black player
     uniquesocket.emit("playerRole", "b");
   } else {
-    uniquesocket.emit("SpectatorRole");
+    uniquesocket.emit("spectatorRole");
   }
 
   uniquesocket.on("disconnect", function () {
@@ -41,7 +41,7 @@ io.on("connection", function (uniquesocket) {
       // If disconnected socket id is equal to the black player socket id, delete black player
       delete players.black;
     }
-    console.log("Disconnected");
+    console.log("Disconnected:", uniquesocket.id);
   });
 
   uniquesocket.on("move", function (move) {
@@ -67,10 +67,10 @@ io.on("connection", function (uniquesocket) {
   });
 });
 
-server.listen(3000, (err) => {
+server.listen(8000, (err) => {
   if (err) {
     console.log("Error starting server:", err);
   } else {
-    console.log("Server running on port 3000");
+    console.log("Server running on port 8000");
   }
 });

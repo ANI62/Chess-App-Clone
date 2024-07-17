@@ -56,19 +56,26 @@ const renderBoard = () => {
       boardElement.appendChild(squareElement);
     });
   });
+  if(playerRole=='b'){
+    boardElement.classList.add('flipped')
+  }
+  else{
+    boardElement.classList.remove('flipped')
+  }
 };
 
 const handleMove = (sourceSquare, targetSquare) => {
   const move = {
     from: `${String.fromCharCode(97 + sourceSquare.col)}${8 - sourceSquare.row}`,
-    to: `${String.fromCharCode(97 + targetSquare.col)}${8 - targetSquare.row}`
+    to: `${String.fromCharCode(97 + targetSquare.col)}${8 - targetSquare.row}`,
+    promotion: 'q'
   };
 
   if (chess.move(move)) {
     socket.emit("move", move);
     renderBoard();
   } else {
-    console.log("Invalid move");
+    console.log("Invalid move:", move);
   }
 };
 
@@ -80,9 +87,8 @@ const getPieceUnicode = (piece) => {
     case 'b': return '♗'; // Bishop
     case 'q': return '♕'; // Queen
     case 'k': return '♔'; // King
-    default: return '';
+    default: return ''; // Return an empty string if the piece type is unknown
   }
-  return getPieceUnicode[piece.type]||" ";
 };
 
 renderBoard();
@@ -90,10 +96,20 @@ renderBoard();
 socket.on("playerRole", (role) => {
   playerRole = role;
   console.log("Player role:", playerRole);
+  renderBoard();
 });
 
 socket.on("move", (move) => {
-  chess.move(move);
+  if (chess.move(move)) {
+    renderBoard();
+  } else {
+    console.log("Received invalid move from server:", move);
+  }
+});
+
+socket.on("spectatorRole", (fen) => {
+  playerRole = null;
+  chess.load(fen); // Assuming fen is needed here
   renderBoard();
 });
 
